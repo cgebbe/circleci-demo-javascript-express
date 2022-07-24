@@ -20,15 +20,15 @@ jobs:
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
-  
-  configure_infrastructure: 
+
+  configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
-              # You can get this ID in the section where you registered the SSH Key
-              fingerprints: ["a4:51:16:42:f3:05:de:b7:13:c5:9c:c9:ed:fd:b3:03"] 
+          # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["a4:51:16:42:f3:05:de:b7:13:c5:9c:c9:ed:fd:b3:03"]
       - run:
           name: Install Ansible
           command: |
@@ -38,8 +38,26 @@ jobs:
           command: |
             ansible-playbook -i inventory root.yml
 
+smoke_test:
+  docker:
+    - image: alpine:latest
+  steps:
+    - run: apk add --update curl
+    - run:
+        name: smoke test
+        command: |
+          URL="https://blog.udacity.com/"
+          # Test if website exists
+          if curl -s --head ${URL} 
+          then
+            return 0
+          else
+            return 1
+          fi
+
 workflows:
   myWorkflow:
     jobs:
       # - create_infrastructure
-      - configure_infrastructure
+      # - configure_infrastructure
+      - smoke_test
