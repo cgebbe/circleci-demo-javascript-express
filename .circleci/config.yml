@@ -32,7 +32,10 @@ jobs:
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7} \
               --region us-east-1
-      # comment out to not destroy it
+      - run:
+          command: |
+            return 1
+      # comment out to not destroy it. Putting this to smoke test does not work due to image
       - destroy_environment
 
   configure_infrastructure:
